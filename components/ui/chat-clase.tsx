@@ -14,7 +14,7 @@ function Chat() {
   const [messages, setMessages] = useState([]);
   const [message, setMessage] = useState("");
 
-  // Llamamos los Hooks useEffect de forma incondicional
+  // Hook para manejar el nombre del usuario basado en el token
   useEffect(() => {
     if (session) {
       const tokenA = parseJwt(session.user.token);
@@ -23,6 +23,7 @@ function Chat() {
     }
   }, [session]);
 
+  // Hook para la suscripción al canal de Pusher
   useEffect(() => {
     Pusher.logToConsole = true;
 
@@ -36,17 +37,14 @@ function Chat() {
       setMessages((prevMessages) => [...prevMessages, data]);
     });
 
-    // Limpiar suscripciones al salir del componente
+    // Limpiar suscripción al salir del componente
     return () => {
       channel.unbind_all();
       channel.unsubscribe();
     };
   }, []);
 
-  if (status === "loading") {
-    return <p>Loading...</p>;
-  }
-
+  // Lógica para parsear el token JWT
   function parseJwt(token) {
     if (!token) return;
     const base64Url = token.split(".")[1];
@@ -54,6 +52,7 @@ function Chat() {
     return JSON.parse(window.atob(base64));
   }
 
+  // Manejar el envío de mensajes
   const submit = async (e) => {
     e.preventDefault();
     await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/messages`, {
@@ -67,6 +66,11 @@ function Chat() {
 
     setMessage("");
   };
+
+  // Mostrar "Loading..." mientras la sesión se está cargando
+  if (status === "loading") {
+    return <p>Loading...</p>;
+  }
 
   return (
     <>
