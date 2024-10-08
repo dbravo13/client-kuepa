@@ -52,6 +52,10 @@ function Page() {
 
   // Use useEffect to run the async call for fetching user data, without any conditionals
   useEffect(() => {
+    if (!token) {
+      return; // Si no hay token, no hacemos nada
+    }
+
     const usersnew = async () => {
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/profile`,
@@ -80,10 +84,8 @@ function Page() {
       }
     };
 
-    if (token) {
-      usersnew();
-    }
-  }, [token]); // Only re-run when `token` changes
+    usersnew();
+  }, [token]); // Solo se ejecuta cuando el token cambia
 
   const handleEditUser = (user) => {
     setEditingUser({ ...user });

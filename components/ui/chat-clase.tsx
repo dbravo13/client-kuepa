@@ -7,11 +7,15 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useSession } from "next-auth/react";
 import Pusher from "pusher-js";
+interface Message {
+  username: string;
+  message: string;
+}
 
 function Chat() {
   const { data: session, status } = useSession();
   const [username, setUsername] = useState("username");
-  const [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState<Message[]>([]); // Tipo explícito aquí
   const [message, setMessage] = useState("");
 
   // Hook para manejar el nombre del usuario basado en el token
@@ -33,7 +37,7 @@ function Chat() {
 
     const channel = pusher.subscribe("chat");
 
-    channel.bind("message", function (data) {
+    channel.bind("message", function (data: Message) {
       setMessages((prevMessages) => [...prevMessages, data]);
     });
 
@@ -45,7 +49,7 @@ function Chat() {
   }, []);
 
   // Lógica para parsear el token JWT
-  function parseJwt(token) {
+  function parseJwt(token: string) {
     if (!token) return;
     const base64Url = token.split(".")[1];
     const base64 = base64Url.replace("-", "+").replace("_", "/");
@@ -53,7 +57,7 @@ function Chat() {
   }
 
   // Manejar el envío de mensajes
-  const submit = async (e) => {
+  const submit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/messages`, {
       method: "POST",

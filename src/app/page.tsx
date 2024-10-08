@@ -40,7 +40,7 @@ export default function Home() {
       });
 
       if (responseNextAuth?.error) {
-        setError(responseNextAuth.error.split(","));
+        setError(responseNextAuth.error.split(",")[0]);
         toast.error("Error", {
           description: responseNextAuth.error,
         });
@@ -102,7 +102,7 @@ export default function Home() {
       });
 
       if (responseNextAuth?.error) {
-        setError(responseNextAuth.error.split(","));
+        setError(responseNextAuth.error.split(",")[0]);
         return;
       }
 
