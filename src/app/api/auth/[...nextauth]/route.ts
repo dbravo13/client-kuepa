@@ -11,6 +11,7 @@ const handler = NextAuth({
         email: { label: "email", type: "email", placeholder: "test@test.com" },
         password: { label: "Password", type: "password" },
       },
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       async authorize(credentials, req) {
         const res = await fetch(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/signin-authentication`,
@@ -36,6 +37,7 @@ const handler = NextAuth({
       return { ...token, ...user };
     },
     async session({ session, token }) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       session.user = token as any;
       return session;
     },
