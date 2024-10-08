@@ -14,21 +14,13 @@ function Chat() {
   const [messages, setMessages] = useState([]);
   const [message, setMessage] = useState("");
 
-  if (status === "loading") {
-    return <p>Loading...</p>;
-  }
-
-  function parseJwt(token) {
-    if (!token) return;
-    const base64Url = token.split(".")[1];
-    const base64 = base64Url.replace("-", "+").replace("_", "/");
-    return JSON.parse(window.atob(base64));
-  }
-
+  // Llamamos los Hooks useEffect de forma incondicional
   useEffect(() => {
-    const tokenA = parseJwt(session.user.token);
-    const { name } = tokenA;
-    setUsername(name);
+    if (session) {
+      const tokenA = parseJwt(session.user.token);
+      const { name } = tokenA;
+      setUsername(name);
+    }
   }, [session]);
 
   useEffect(() => {
@@ -44,11 +36,23 @@ function Chat() {
       setMessages((prevMessages) => [...prevMessages, data]);
     });
 
+    // Limpiar suscripciones al salir del componente
     return () => {
       channel.unbind_all();
       channel.unsubscribe();
     };
   }, []);
+
+  if (status === "loading") {
+    return <p>Loading...</p>;
+  }
+
+  function parseJwt(token) {
+    if (!token) return;
+    const base64Url = token.split(".")[1];
+    const base64 = base64Url.replace("-", "+").replace("_", "/");
+    return JSON.parse(window.atob(base64));
+  }
 
   const submit = async (e) => {
     e.preventDefault();
