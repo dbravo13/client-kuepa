@@ -50,56 +50,40 @@ function Page() {
     return <p>Loading...</p>;
   }
 
-  // Ensure the useEffect is not conditionally called and add token as a dependency
+  // Use useEffect to run the async call for fetching user data, without any conditionals
   useEffect(() => {
-    usersnew();
-  }, [token]);
-
-  const usersnew = async () => {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/profile`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
-
-    const responseData = await res.json();
-    setData2(responseData);
-
-    let adminCount = 0;
-    let estudianteCount = 0;
-    let driverCount = 0;
-    let moderadorCount = 0;
-
-    if (Array.isArray(responseData)) {
-      responseData.forEach((user) => {
-        switch (user.role) {
-          case "admin":
-            adminCount++;
-            break;
-          case "estudiante":
-            estudianteCount++;
-            break;
-          case "driver":
-            driverCount++;
-            break;
-          case "moderador":
-            moderadorCount++;
-            break;
-          default:
-            break;
+    const usersnew = async () => {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/profile`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
         }
-      });
-      // Here the counts are no longer necessary to be state variables if they aren't used elsewhere
-      // You could keep them for a later use, like updating some UI based on these counts.
-    } else {
-      console.log("No es un array");
+      );
+
+      const responseData = await res.json();
+      setData2(responseData);
+
+      // Calculate role counts
+      if (Array.isArray(responseData)) {
+        const roleCount = responseData.reduce((acc, user) => {
+          acc[user.role] = (acc[user.role] || 0) + 1;
+          return acc;
+        }, {});
+
+        console.log(roleCount);
+      } else {
+        console.log("No es un array");
+      }
+    };
+
+    if (token) {
+      usersnew();
     }
-  };
+  }, [token]); // Only re-run when `token` changes
 
   const handleEditUser = (user) => {
     setEditingUser({ ...user });
@@ -117,11 +101,6 @@ function Page() {
       toast.success("Usuario actualizado");
     }
   };
-
-  const roleDistribution = data2?.reduce((acc, user) => {
-    acc[user.role] = (acc[user.role] || 0) + 1;
-    return acc;
-  }, {});
 
   const handleGoBack = () => {
     router.push("/class-room");
@@ -150,8 +129,16 @@ function Page() {
           </CardHeader>
           <CardContent>
             <div className="flex justify-around">
-              {roleDistribution &&
-                Object.entries(roleDistribution).map(([role, count]) => (
+              {data2?.reduce((acc, user) => {
+                acc[user.role] = (acc[user.role] || 0) + 1;
+                return acc;
+              }, {}) &&
+                Object.entries(
+                  data2.reduce((acc, user) => {
+                    acc[user.role] = (acc[user.role] || 0) + 1;
+                    return acc;
+                  }, {})
+                ).map(([role, count]) => (
                   <div key={role} className="text-center">
                     <div
                       className={`inline-flex items-center justify-center w-12 h-12 rounded-full ${roleColors[role]} text-white mb-2`}

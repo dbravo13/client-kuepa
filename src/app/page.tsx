@@ -10,6 +10,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 export default function Home() {
   const [loginEmail, setLoginEmail] = useState("");
@@ -118,7 +119,13 @@ export default function Home() {
       <div className="max-w-md w-full mx-auto space-y-8 p-8 bg-white dark:bg-gray-800 rounded-xl shadow-lg">
         <div className="text-center">
           <div className="mb-4">
-            <img src="/Logo.png" alt="Logo" className="mx-auto h-24 w-auto" />
+            <Image
+              src="/Logo.png"
+              alt="description"
+              width={500}
+              height={300}
+              layout="responsive"
+            />
           </div>
           <h2 className="mt-6 text-3xl font-extrabold text-gray-900 dark:text-white">
             Bienvenido a Nuestra Plataforma
