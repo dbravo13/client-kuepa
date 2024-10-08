@@ -38,12 +38,9 @@ const roleIcons = {
 
 function Page() {
   const { data: session, status } = useSession();
-  const { email, token } = session?.user || {};
+  const { token } = session?.user || {};
 
   const router = useRouter();
-  const [admin, setAdmin] = useState(0);
-  const [driver, setDriver] = useState(0);
-  const [dispatcher, setDispatcher] = useState(0);
   const [data2, setData2] = useState(null);
   const [editingUser, setEditingUser] = useState(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -53,9 +50,10 @@ function Page() {
     return <p>Loading...</p>;
   }
 
+  // Ensure the useEffect is not conditionally called and add token as a dependency
   useEffect(() => {
     usersnew();
-  }, []);
+  }, [token]);
 
   const usersnew = async () => {
     const res = await fetch(
@@ -96,9 +94,8 @@ function Page() {
             break;
         }
       });
-      setAdmin(adminCount);
-      setDriver(driverCount);
-      setDispatcher(moderadorCount);
+      // Here the counts are no longer necessary to be state variables if they aren't used elsewhere
+      // You could keep them for a later use, like updating some UI based on these counts.
     } else {
       console.log("No es un array");
     }
@@ -255,14 +252,11 @@ function Page() {
                       </Dialog>
                     </div>
                   </CardHeader>
-                  <CardContent>
-                    <p className="text-sm text-gray-500">{order.email}</p>
-                  </CardContent>
                 </Card>
               );
             })}
       </div>
-      <Toaster richColors />
+      <Toaster />
     </div>
   );
 }

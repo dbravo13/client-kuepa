@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React from "react";
 import { useSession } from "next-auth/react";
 
 import Navbar from "@/components/ui/navbar";
@@ -7,6 +7,7 @@ import Navbar from "@/components/ui/navbar";
 
 function Layout({ children }) {
   const { data: session, status } = useSession();
+  console.log(session);
 
   if (status === "loading") {
     return <h1>loading...</h1>;
