@@ -7,6 +7,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useSession } from "next-auth/react";
 import Pusher from "pusher-js";
+
 interface Message {
   username: string;
   message: string;
@@ -26,6 +27,32 @@ function Chat() {
       setUsername(name);
     }
   }, [session]);
+
+  // Hook para cargar los mensajes guardados cuando el componente se monta
+  useEffect(() => {
+    const fetchMessages = async () => {
+      try {
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/messages`,
+          {
+            method: "GET",
+            headers: { "Content-Type": "application/json" },
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error(`Error: ${response.statusText}`);
+        }
+
+        const data: Message[] = await response.json();
+        setMessages(data); // Actualiza el estado con los mensajes obtenidos
+      } catch (error) {
+        console.error("Error al cargar los mensajes:", error);
+      }
+    };
+
+    fetchMessages();
+  }, []); // Este efecto solo se ejecuta al montar el componente
 
   // Hook para la suscripción al canal de Pusher
   useEffect(() => {
@@ -59,19 +86,33 @@ function Chat() {
   // Manejar el envío de mensajes
   const submit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/messages`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        username,
-        message,
-      }),
-    });
+
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/messages/create`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            username,
+            message,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`Error: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      console.log("Mensaje enviado:", data);
+    } catch (error) {
+      console.error("Error al enviar el mensaje:", error);
+    }
 
     setMessage("");
   };
 
-  // Mostrar "Loading..." mientras la sesión se está cargando
   if (status === "loading") {
     return <p>Loading...</p>;
   }
@@ -94,6 +135,10 @@ function Chat() {
               <div>
                 <p className="font-semibold">{msg.username}</p>
                 <p className="text-sm">{msg.message}</p>
+                {/* Mostrar la fecha y hora */}
+                <p className="text-xs text-gray-500">
+                  {new Date(msg.createdAt).toLocaleString()}
+                </p>
               </div>
             </div>
           ))}
