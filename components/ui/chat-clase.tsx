@@ -11,6 +11,7 @@ import Pusher from "pusher-js";
 interface Message {
   username: string;
   message: string;
+  createdAt: string;
 }
 
 function Chat() {
